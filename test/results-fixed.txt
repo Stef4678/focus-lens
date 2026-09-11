@@ -1,0 +1,76 @@
+
+=== A. lens semantics ===
+  ok   A1 any/all tag lens matches library-wide
+  ok   A2 exclude-only lens should show everything EXCEPT the tag
+  ok   A3 include + exclude subtracts correctly
+  ok   A4 All-tags intersection (mode switch)
+
+=== B. chip rendering / escaping ===
+  ok   B1 tag containing a double quote is still clickable
+  ok   B2 shift-click exclude then normal click re-includes
+
+=== C. pagination / race conditions ===
+  ok   C1 Show more appends the next page without duplicating
+  ok   C2 stale page must not leak into a newer lens
+  ok   C3 overlapping loadMore must not duplicate or leak the page
+  ok   C5 a timed-out page query is reported, not silently dropped
+  ok   C6 mapLimit settles when there are fewer items than the concurrency limit
+
+=== D. AI similar lens ===
+  ok   D1 similar lens renders scored results
+  ok   D2 threshold change does not leave the busy pill stuck
+  ok   D3 AI failure surfaces an error, not a hang
+  ok   D3b AI returning an empty result set is not reported as a failure
+  ok   D4 AI module missing is reported, not crashed
+
+=== E. duplicates ===
+  ok   E1 duplicates groups by name+size+dims
+  ok   E2 no-duplicate path leaves grid hidden and count zeroed
+
+=== F. persistence (pin / restore / last lens) ===
+  ok   F1 pin then restore round-trips tags, mode, filters
+  ok   F2 rememberLast writes a reopenable snapshot
+  ok   F3 pins are scoped per library
+
+=== G. filters ===
+  ok   G1 rating filter narrows the lens
+  ok   G2 shape filter matches panoramic landscape
+  ok   G3 colour filter uses palette buckets
+  ok   G4 date filter excludes old items
+  ok   G5 filter-only lens works with no tags at all
+  ok   G6 reset clears filters
+
+=== H. text narrowing ===
+  ok   H1 text filter intersects and is case-insensitive
+  ok   H2 text matching nothing yields empty lens (not an error)
+
+=== I. resilience ===
+  ok   I1 getAll failure shows a clear error, no hang
+  ok   I2 focus with an empty selection warns and stays usable
+  ok   I3 untagged selection falls back to a derived lens
+
+=== J. bulk actions & export ===
+  ok   J1 tag-all only touches active-library items
+  ok   J2 export writes a header + one row per item
+
+=== K. creates-in-Eagle artifacts ===
+  ok   K1 tag group creation uses the lens tags
+  ok   K2 smart folder creation uses AND rules
+
+=== L. other libraries ===
+  ok   L1 extras paths are normalized and deduped on read
+  ok   L2 enabling cross-library search rescans and keeps state consistent
+  ok   L3 real .library folder on disk is indexed, merged and browse-only
+
+=== M. pure helpers ===
+  ok   M1 shape classification thresholds
+  ok   M2 path normalisation dedupes spellings
+
+=== N. history ===
+  ok   N1 history steps back and forward
+
+=== O. clear ===
+  ok   O1 Clear resets tags, keywords and filters
+
+==========================================================
+PASS 43   FAIL 0

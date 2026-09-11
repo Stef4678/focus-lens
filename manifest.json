@@ -1,0 +1,27 @@
+{
+    "id": "LF0CUSV1EW5X2",
+    "version": "1.6.1",
+    "platform": "all",
+    "arch": "all",
+    "name": "Focus Lens",
+    "logo": "/logo.png",
+    "keywords": ["focus", "isolate", "filter", "tags", "lens", "concentration", "smart", "similar", "ai"],
+    "devTools": false,
+    "main": {
+        "url": "index.html",
+        "width": 440,
+        "height": 720,
+        "minWidth": 360,
+        "minHeight": 480,
+        "resizable": true,
+        "frame": true,
+        "fullscreenable": true,
+        "maximizable": true,
+        "minimizable": true,
+        "alwaysOnTop": false,
+        "backgroundColor": "#14161d",
+        "childWindow": true,
+        "multiple": false,
+        "runAfterInstall": false
+    }
+}

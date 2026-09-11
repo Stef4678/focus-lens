@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>Focus Lens</title>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+    <div id="app" hidden>
+        <!-- ============================ Header ============================ -->
+        <header class="appbar">
+            <span class="logo-glyph" aria-hidden="true">◎</span>
+            <div class="appbar-text">
+                <h1>Focus Lens</h1>
+                <p id="libName" class="libname">Isolate · Pin · Return</p>
+            </div>
+        </header>
+
+        <!-- ======================= Selection entry ======================= -->
+        <section class="dock">
+            <button id="btnFocus" class="btn primary big" title="Turn the currently selected items in Eagle into an isolation lens">
+                <span class="ic" aria-hidden="true">◉</span> Focus on Selection
+            </button>
+            <div class="selline">
+                <span id="selSummary" class="summary">Select items in Eagle, then press <b>Focus</b>.</span>
+                <button id="btnRefreshSel" class="btn ghost tiny" title="Re-read the current selection &amp; refresh tag counts">↻</button>
+            </div>
+            <button id="btnSimilar" class="btn ai big" title="AI visual similarity: isolate everything that looks like the selected image (needs Eagle's AI Search plugin)">
+                <span class="ic" aria-hidden="true">≈</span> Find Similar (AI)
+            </button>
+            <button id="btnDuplicates" class="btn ghost big" title="Scan the indexed libraries for duplicate images (identical name + size + dimensions)">
+                <span class="ic" aria-hidden="true">⧉</span> Find duplicates
+            </button>
+        </section>
+
+        <!-- ========================== Lens panel ========================= -->
+        <section id="lensPanel" class="lens panel">
+            <div class="lens-head">
+                <div class="nav">
+                    <button id="btnBack" class="btn ghost tiny" title="Previous lens (history)" disabled>◀</button>
+                    <button id="btnFwd" class="btn ghost tiny" title="Next lens (history)" disabled>▶</button>
+                </div>
+                <span class="lens-count" id="lensCount">0 items</span>
+                <div id="modeSeg" class="seg" role="radiogroup" aria-label="Match mode">
+                    <label class="seg-item" title="Show items that have ANY of the selected tags (union)">
+                        <input type="radio" name="mode" id="modeAny" checked />
+                        <span>Any tag</span>
+                    </label>
+                    <label class="seg-item" title="Show items that have ALL of the selected tags (intersection)">
+                        <input type="radio" name="mode" id="modeAll" />
+                        <span>All tags</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- AI similarity controls -->
+            <div id="simPanel" class="sim-panel" hidden>
+                <div class="sim-row">
+                    <span class="sim-label">Similarity ≥ <b id="simPct">45%</b></span>
+                    <input id="simThreshold" type="range" min="0" max="100" step="5" value="45" />
+                    <span id="simCount" class="sim-count">0</span>
+                </div>
+                <div class="sim-note">AI visual similarity of the selected item(s) — powered by Eagle's AI&nbsp;Search plugin.</div>
+            </div>
+
+            <div id="kwRow" class="kw-row">
+                <input id="kwInput" type="text" spellcheck="false"
+                       placeholder="…and also contain text (e.g. poster 2026)" />
+                <button id="btnKwClear" class="btn ghost tiny" title="Clear text filter" hidden>✕</button>
+            </div>
+
+            <div id="tagChips" class="chips" aria-label="Lens tags"></div>
+
+            <div id="pushArea" class="push-row" hidden>
+                <span class="push-label">Make it a real sidebar item:</span>
+                <button id="btnTagGroup" class="btn ghost tiny" hidden>Tag group</button>
+                <button id="btnSmart" class="btn ghost tiny" hidden>Smart folder</button>
+            </div>
+
+            <!-- Multi-criteria filters (combine with tags / work alone) -->
+            <div id="filterBox" class="filters">
+                <div class="filters-head">
+                    <span>Filters</span>
+                    <button id="btnClearFilters" class="btn ghost tiny" hidden>reset</button>
+                </div>
+                <div id="colorRow" class="color-row" title="Filter by dominant colour"></div>
+                <div class="filters-grid">
+                    <label for="starSel">Rating</label>
+                    <select id="starSel">
+                        <option value="0">Any</option>
+                        <option value="1">★ 1+</option>
+                        <option value="2">★ 2+</option>
+                        <option value="3">★ 3+</option>
+                        <option value="4">★ 4+</option>
+                        <option value="5">★ 5</option>
+                    </select>
+                    <label for="dateSel">Added</label>
+                    <select id="dateSel">
+                        <option value="any">Any time</option>
+                        <option value="7">Last 7 days</option>
+                        <option value="30">Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                        <option value="365">Last year</option>
+                    </select>
+                    <label for="shapeSel">Shape</label>
+                    <select id="shapeSel">
+                        <option value="any">Any</option>
+                        <option value="square">Square</option>
+                        <option value="landscape">Landscape</option>
+                        <option value="portrait">Portrait</option>
+                        <option value="panoramic-landscape">Panoramic (wide)</option>
+                        <option value="panoramic-portrait">Panoramic (tall)</option>
+                    </select>
+                    <label for="folderSel">Folder</label>
+                    <select id="folderSel"><option value="">Any</option></select>
+                </div>
+            </div>
+
+            <div id="pinRow" class="pin-row">
+                <input id="pinName" type="text" spellcheck="false" placeholder="Pin this lens under a name…" />
+                <button id="btnPin" class="btn ghost tiny">Pin</button>
+                <button id="btnClear" class="btn ghost tiny danger" title="Clear the current lens &amp; results">Clear</button>
+            </div>
+
+            <!-- Bulk actions on the current result set -->
+            <div id="actionRow" class="actions" hidden>
+                <div class="act-line">
+                    <input id="bulkTagInput" type="text" spellcheck="false" placeholder="tag name…" />
+                    <button id="btnBulkTag" class="btn ghost tiny" title="Add this tag to every active-library item in the result">Tag all</button>
+                </div>
+                <div class="act-line">
+                    <select id="bulkFolderSel"><option value="">folder…</option></select>
+                    <button id="btnBulkFolder" class="btn ghost tiny" title="Add every active-library item in the result to this folder">Add to folder</button>
+                </div>
+                <div class="act-line">
+                    <button id="btnCopyNames" class="btn ghost tiny">Copy names</button>
+                    <button id="btnExport" class="btn ghost tiny">Export…</button>
+                </div>
+            </div>
+            <label class="sync" title="After computing a lens, select its items in Eagle's main window so everything else drops out of view">
+                <input type="checkbox" id="syncSel" checked />
+                Keep Eagle's selection in sync with this lens
+            </label>
+            <label class="sync" title="When enabled, the last lens you used is re-applied automatically when the plugin opens. Off by default so the plugin always starts idle.">
+                <input type="checkbox" id="restoreChk" />
+                Reopen last lens on start
+            </label>
+        </section>
+
+        <!-- =========================== Results =========================== -->
+        <section class="results">
+            <div id="emptyHint" class="empty">
+                <div class="empty-ic" aria-hidden="true">◎</div>
+                <p><b>One-click isolation for your Eagle library.</b></p>
+                <p>Select a few related items in Eagle and press <b>Focus on Selection</b>.
+                Focus Lens finds the tags they share, then shows you every item in the
+                library that belongs to that “family” — and highlights it in Eagle itself.</p>
+                <ol>
+                    <li>Select 1+ items in the Eagle grid</li>
+                    <li>Press <b>Focus on Selection</b></li>
+                    <li>Toggle tags / Any·All to reshape the lens</li>
+                    <li><b>Pin</b> it to return later, or push it to Eagle as a tag group / smart folder</li>
+                </ol>
+            </div>
+            <div id="grid" class="grid"></div>
+            <div id="lensNote" class="note" hidden></div>
+            <div id="loadMoreRow" class="loadmore" hidden>
+                <button id="btnLoadMore" class="btn ghost tiny">Show more</button>
+                <span id="shownOf" class="summary"></span>
+            </div>
+        </section>
+
+        <!-- ======================== Pinned lenses ======================== -->
+        <details id="savedBox" class="panel">
+            <summary>Pinned lenses <span id="savedCount" class="badge"></span></summary>
+            <div id="savedList" class="saved"></div>
+        </details>
+
+        <!-- =================== Artifacts created in Eagle ================ -->
+        <details id="pushedBox" class="panel" hidden>
+            <summary>Created in Eagle <span id="pushedCount" class="badge"></span></summary>
+            <div id="pushedList" class="saved"></div>
+        </details>
+
+        <!-- ======================= Other libraries ======================== -->
+        <details id="xlibBox" class="panel">
+            <summary>Other libraries <span id="xlibCount" class="badge"></span></summary>
+            <label class="sync" title="When on, Focus Lens also scans these .library folders and merges their items into the lens (browse-only).">
+                <input type="checkbox" id="xlibEnable" />
+                Search across other libraries
+            </label>
+            <div class="xlib-row">
+                <button id="btnFindLibs" class="btn ghost tiny">⌕ Find automatically</button>
+                <button id="btnAddLib" class="btn ghost tiny">＋ Add library…</button>
+                <span class="xlib-hint">Folders ending in <code>.library</code></span>
+            </div>
+            <div id="xlibList" class="saved"></div>
+            <div class="xlib-note">Items found in other libraries are <b>browse-only</b> — they show in the grid but can't be opened/selected in Eagle's window (only the active library can).</div>
+        </details>
+
+        <footer class="foot">
+            <span>Items shown are a live query of the current library.</span> <span id="ver" class="ver"></span>
+        </footer>
+    </div>
+
+    <!-- Busy + toast -->
+    <div id="busy" class="busy" hidden><div class="busy-card"><span class="spin" aria-hidden="true"></span><span id="busyText">Working…</span></div></div>
+    <div id="toast" class="toast" hidden></div>
+    <div id="noEagle" class="empty" hidden>
+        <p>Focus Lens is an <b>Eagle</b> plugin and only runs inside the Eagle app
+        (window plugins).</p>
+    </div>
+
+    <script src="js/plugin.js"></script>
+</body>
+</html>
