@@ -10,8 +10,7 @@ No static folders, no manual tag-group clicking. It's a temporary, reshapeable
 "focus state" you apply to the library, and you can pin any state to come back later.
 You can even search **across multiple Eagle libraries** at once.
 
-**Current version:** 1.6.1 · requires **Eagle 4.x** (some extras need 4.0 build12+ / build22+ —
-the plugin auto-detects and hides what your build doesn't support).
+**Current version:** 1.6.1 · requires **Eagle 4.x**.
 
 ---
 
@@ -38,16 +37,42 @@ the plugin auto-detects and hides what your build doesn't support).
 
 ---
 
-## 📦 Install (local development plugin)
+## ✅ Requirements
 
-1. Copy this folder (the one containing `manifest.json`) into Eagle's plugin folder.
-   To find it: Eagle → **Plugin panel** (puzzle icon) → **⋯ / settings** → **Open Plugin Folder**.
-   Recommended sub-folder name: `focus-lens`.
-   (Alternatively, unzip the packaged `FocusLens-1.6.1.zip` — its contents are ready to drop in.
-   The same archive is attached to the [v1.6.1 release](https://github.com/Stef4678/focus-lens/releases/latest).)
-2. In the Plugin panel, refresh /**+** so Eagle re-scans local plugins.
-3. Click **Focus Lens** in the plugin list — the window opens as a child window of Eagle.
-4. That's it. No build step, no npm, no network access — pure HTML/CSS/JS.
+- **Eagle 4.x** — Focus Lens is a window plugin and only runs inside Eagle (macOS or Windows).
+- **Eagle 4.0 build 12+** — needed for the synced selection in Eagle's grid and click-to-reveal
+  (`eagle.item.select()`, `eagle.item.open({ window })`).
+- **Eagle 4.0 build 22+** — needed to push a lens into Eagle as a **smart folder**.
+  On older builds the plugin hides controls your build doesn't support rather than showing
+  them broken; **tag groups** work from build 12+.
+- **Eagle's AI Search plugin** *(optional — only for ≈ Find Similar)* — install it from Eagle's
+  plugin panel and let it finish indexing.
+- **File-system access** *(optional — only for cross-library scanning)* — supplied by Eagle via
+  Node's `fs`. If it isn't available, **Find automatically** / **＋ Add library…** stay disabled.
+- **Nothing else.** No npm, no build step, no network access — plain HTML/CSS/JS.
+  (Node is needed *only* to run the test harness in `test/`.)
+
+---
+
+## 📦 Install
+
+**1. Get the plugin**
+
+- *Packaged release (recommended):* download `FocusLens-1.6.1.zip` from the
+  [latest release](https://github.com/Stef4678/focus-lens/releases/latest) and unzip it —
+  its contents are ready to drop in.
+- *From this repository:* use this folder (the one containing `manifest.json`).
+
+**2. Put it in Eagle's plugin folder**
+
+In Eagle: **Plugin panel** (puzzle icon) → **⋯ / settings** → **Open Plugin Folder**.
+Create a sub-folder there — recommended name `focus-lens` — and copy the plugin files into it,
+so that `manifest.json` sits directly inside `focus-lens/`.
+
+**3. Load it**
+
+In the Plugin panel, refresh (**+**) so Eagle re-scans local plugins, then click
+**Focus Lens** in the plugin list — the window opens as a child window of Eagle.
 
 > On first run Eagle may ask to trust/run the local plugin; accept it. Local
 > development plugins don't go through the Plugin Center review.
@@ -180,6 +205,24 @@ won't find them — use **＋ Add library…** to point at the folder.*
 
 ---
 
+## 🔧 Troubleshooting
+
+| Symptom | What's going on |
+| --- | --- |
+| Focus Lens isn't listed in the Plugin panel | Eagle scans the folder that contains `manifest.json` **directly** — not a folder wrapped around it. Check the path, hit refresh, or restart Eagle. |
+| A notice says the plugin only runs inside Eagle | Expected: window plugins need Eagle's runtime. Opening `index.html` in a browser always shows this. |
+| **≈ Find Similar** says AI Search isn't available | Install/enable Eagle's **AI Search** plugin and let it finish indexing; if it's still syncing, retry in a moment. AI Search indexes the **active library** only. |
+| The **Smart folder** option is missing | It needs Eagle 4.0 **build 22+**. The plugin hides controls your build doesn't support instead of showing them broken — use **Tag group** instead. |
+| **Find automatically** / **＋ Add library…** are disabled | Eagle's file-system access (`require('fs')`) isn't available. Search the active library only, or add the library by path if the picker still works. |
+| The first focus takes a few seconds | The initial `eagle.item.getAll()` snapshot is the only heavy call (it's time-bounded). Filtering, counts and thumbnails are computed in memory from then on. |
+| Other-library items won't open in Eagle | They're **browse-only** by design — shown with a blue library badge. Eagle can only select/open items in its active library. |
+| Clicking a thumbnail didn't scroll to that folder | **Open** reveals the item in Eagle's full list; it doesn't force-scroll a folder. The synced selection usually lands you next to it. |
+| Pins or created artifacts seem to reset | They're stored **per library**. Switching libraries re-keys them and rebuilds the index automatically. |
+| Cross-library search misses items | That mode reads the `.library` layout on disk directly, so it's best-effort: if the layout differs it indexes fewer items rather than failing. |
+| The lens counts more items than it renders | A page's hydration query timed out. Since 1.6.1 a timed-out page is reported instead of failing silently — retry, or focus a smaller set. |
+
+---
+
 ## 🗂 Files
 
 ```
@@ -191,7 +234,8 @@ focus-lens/
 └─ js/plugin.js            # all logic (vanilla JS, no dependencies)
 ```
 
-Published distributions are also built as `FocusLens-<version>.zip`.
+Also in the repository: `test/` (the headless harness), `assets/` (screenshots) and
+`FocusLens-1.6.1.zip` — the packaged build, identical to the release asset.
 
 ---
 
@@ -217,24 +261,6 @@ Published distributions are also built as `FocusLens-<version>.zip`.
 
 ---
 
-## ⚠️ Notes & limits
-
-- Version detection is conservative: `select()`/`open({window})` need Eagle 4.0 **build12+**,
-  smart folders need **build22+**. Unavailable options are hidden, never shown broken.
-- Item "open" reveals the item in Eagle's full list; it doesn't force-scroll a folder.
-  Combined with the synced selection this usually lands where you're looking.
-- `getAll()` snapshot is the only heavy call (bounded by a timeout); filtering, counts and
-  thumbnails are all in memory afterwards. A very large library may take a few seconds to
-  index on first focus.
-- Switching libraries re-keys all pins/artifacts and rebuilds the index automatically
-  (`onLibraryChanged`).
-- **Cross-library mode is best-effort/experimental.** It reads the `.library` on-disk layout
-  directly (each item = `<id>.info/` with a `metadata.json`; thumbnails under `thumbnails/`),
-  so it can silently index fewer items if the layout differs — and it never crashes, only
-  degrades. Other-library items are browse-only.
-
----
-
 ## 🧪 Tests
 
 The plugin is developed against a **headless harness** that runs the real `js/plugin.js`
@@ -249,38 +275,17 @@ node test/check-busy.js   # static busyOn/busyOff refcount audit
 
 ---
 
-## 📝 Changelog
+## Contact
 
-### 1.6.1
+Questions, bug reports and feature requests are welcome:
 
-Bug-fix release; found by the headless harness in `test/` (each fix has a regression test).
+- **GitHub:** [Stef4678/focus-lens](https://github.com/Stef4678/focus-lens)
+- **Email:** stefaninfp@gmail.com
 
-- **"Show more" could hang forever.** `mapLimit()` only started `min(limit, items.length)`
-  workers but resolved when `limit` of them had finished, so any batch smaller than the
-  concurrency limit produced a promise that could never settle. This is the code path used
-  when paging a large lens after the index has been invalidated (e.g. right after a bulk
-  tag/folder edit), and it also affected the bulk-tag/folder actions.
-- **Busy pill never went away after "Find Similar".** `doSimilar()` called `busyOn()` twice
-  but released the refcount only once, so the "Reading selection…/Searching…" pill stayed on
-  screen and the next action's indicator stopped working.
-- **"Find Similar" reported a failure as "no matches".** If every AI Search call failed
-  (not installed / still indexing), the plugin claimed *"No similar images found."* It now
-  distinguishes a failed query from a genuine empty result.
-- **Excluding the only active tag emptied the lens.** Shift-clicking a chip to make a
-  `not tag` lens hit the "lens is empty" early return, so the exclude was never applied —
-  even though the README documents `includes − excludes`. An exclude-only lens now works.
-- **Two quick "Show more" clicks rendered the page twice.** The pagination cursor advanced
-  only *after* hydration, so a second click re-hydrated and re-appended the same items.
-  The page is now claimed up front.
-- **A page in flight could land in a reshaped lens.** `loadMore()` now drops its result if
-  the lens changed while it was hydrating, instead of appending stale items to the new grid.
-- **Items could vanish silently.** If a page's `get({ids})` query timed out while hydrating,
-  the total still counted those items but the grid quietly showed fewer, with no warning.
-  A timed-out page is now reported.
-- Minor: the cross-library count line no longer implies other-library items are included in
-  the synced Eagle selection (they are browse-only); the folder filter is labelled
-  `Folder: any` and named folders appear in lens names; the empty-state hint distinguishes
-  "library could not be loaded" from "no items match".
+---
 
-> The packaged `FocusLens-1.6.1.zip` matches the current folder contents — both are the fixed
-> 1.6.1 build. The archive is also attached to the v1.6.1 release on GitHub.
+## License
+
+Released under the MIT License.
+
+MIT © 2026 Kerekes Stefan
