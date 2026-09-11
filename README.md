@@ -56,23 +56,24 @@ You can even search **across multiple Eagle libraries** at once.
 
 ## 📦 Install
 
-**1. Get the plugin**
+**Option A — the packaged plugin (recommended)**
 
-- *Packaged release (recommended):* download `FocusLens-1.6.1.zip` from the
-  [latest release](https://github.com/Stef4678/focus-lens/releases/latest) and unzip it —
-  its contents are ready to drop in.
-- *From this repository:* use this folder (the one containing `manifest.json`).
+1. Download **`FocusLens-1.6.1.eagleplugin`** from the
+   [latest release](https://github.com/Stef4678/focus-lens/releases/latest).
+2. **Double-click the downloaded file.** Eagle opens an install confirmation — accept it.
+3. If Focus Lens doesn't show up straight away, restart Eagle.
 
-**2. Put it in Eagle's plugin folder**
+The same file is committed in this repository at
+[`dist/FocusLens-1.6.1.eagleplugin`](dist/FocusLens-1.6.1.eagleplugin) if you'd rather
+take it from there.
 
-In Eagle: **Plugin panel** (puzzle icon) → **⋯ / settings** → **Open Plugin Folder**.
-Create a sub-folder there — recommended name `focus-lens` — and copy the plugin files into it,
-so that `manifest.json` sits directly inside `focus-lens/`.
+**Option B — run from source (development)**
 
-**3. Load it**
-
-In the Plugin panel, refresh (**+**) so Eagle re-scans local plugins, then click
-**Focus Lens** in the plugin list — the window opens as a child window of Eagle.
+1. In Eagle: **Plugin panel** (puzzle icon) → **⋯ / settings** → **Open Plugin Folder**.
+2. Copy this folder — the one containing `manifest.json` — into it, using the recommended
+   sub-folder name `focus-lens`, so that `manifest.json` sits directly inside `focus-lens/`.
+3. In the Plugin panel, refresh (**+**) so Eagle re-scans local plugins, then click
+   **Focus Lens** in the plugin list — the window opens as a child window of Eagle.
 
 > On first run Eagle may ask to trust/run the local plugin; accept it. Local
 > development plugins don't go through the Plugin Center review.
@@ -210,6 +211,7 @@ won't find them — use **＋ Add library…** to point at the folder.*
 | Symptom | What's going on |
 | --- | --- |
 | Focus Lens isn't listed in the Plugin panel | Eagle scans the folder that contains `manifest.json` **directly** — not a folder wrapped around it. Check the path, hit refresh, or restart Eagle. |
+| Double-clicking the `.eagleplugin` does nothing | Make sure Eagle is installed and running first. If your system still won't hand the file over to Eagle, use **Option B** under Install and copy the folder in by hand. |
 | A notice says the plugin only runs inside Eagle | Expected: window plugins need Eagle's runtime. Opening `index.html` in a browser always shows this. |
 | **≈ Find Similar** says AI Search isn't available | Install/enable Eagle's **AI Search** plugin and let it finish indexing; if it's still syncing, retry in a moment. AI Search indexes the **active library** only. |
 | The **Smart folder** option is missing | It needs Eagle 4.0 **build 22+**. The plugin hides controls your build doesn't support instead of showing them broken — use **Tag group** instead. |
@@ -227,15 +229,20 @@ won't find them — use **＋ Add library…** to point at the folder.*
 
 ```
 focus-lens/
-├─ manifest.json           # plugin manifest (window type)
-├─ logo.png                # 128×128 plugin icon
-├─ index.html              # UI shell
-├─ css/style.css           # dark/light theme via [data-theme]
-└─ js/plugin.js            # all logic (vanilla JS, no dependencies)
+├─ manifest.json                     # plugin manifest (window type)
+├─ logo.png                          # 128×128 plugin icon
+├─ index.html                        # UI shell
+├─ css/style.css                     # dark/light theme via [data-theme]
+├─ js/plugin.js                      # all logic (vanilla JS, no dependencies)
+└─ dist/
+   └─ FocusLens-1.6.1.eagleplugin    # packaged plugin, ready to double-click
 ```
 
-Also in the repository: `test/` (the headless harness), `assets/` (screenshots) and
-`FocusLens-1.6.1.zip` — the packaged build, identical to the release asset.
+Also in the repository: `test/` (the headless harness) and `assets/` (screenshots).
+
+`dist/FocusLens-1.6.1.eagleplugin` is the same file attached to the release. It's a ZIP
+archive whose root holds exactly `manifest.json`, `index.html`, `logo.png`, `css/style.css`
+and `js/plugin.js` — no `test/`, no repository files.
 
 ---
 
