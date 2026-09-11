@@ -16,6 +16,17 @@ You can even search **across multiple Eagle libraries** at once.
 
 ---
 
+## 📸 Screenshots
+
+Focus Lens is a single panel: isolate from your Eagle selection at the top, then reshape and
+act on the lens below it.
+
+| The lens panel | Filters, bulk actions & libraries |
+| --- | --- |
+| ![The Focus Lens panel after Focus on Selection: the shared tag chips with their item counts, the Any tag / All tags toggle, the text filter, colour and rating filters, the pin and bulk-action rows, and the isolated results grid underneath](assets/panel-top.png) | ![The lower half of the panel: filters, pin and bulk actions, the Pinned lenses list, and the Other libraries section with auto-discovery and manual library entries](assets/panel-bottom.png) |
+
+---
+
 ## ✨ Features
 
 | Feature | What it does |
@@ -39,6 +50,52 @@ You can even search **across multiple Eagle libraries** at once.
 
 ---
 
+## 🗂 Project structure
+
+```
+focus-lens/
+├─ manifest.json                     # plugin manifest (window type)
+├─ logo.png                          # 128×128 plugin icon
+├─ index.html                        # UI shell
+├─ css/style.css                     # dark/light theme via [data-theme]
+├─ js/plugin.js                      # all logic (vanilla JS, no dependencies)
+├─ dist/
+│  └─ FocusLens-1.6.1.eagleplugin    # packaged plugin, ready to double-click
+├─ assets/                           # screenshots used by this README
+└─ test/                             # headless test harness (Node, not shipped)
+```
+
+`dist/FocusLens-1.6.1.eagleplugin` is the same file attached to the release. It's a ZIP
+archive whose root holds exactly `manifest.json`, `index.html`, `logo.png`, `css/style.css`
+and `js/plugin.js` — no `test/`, no `assets/`, no repository files.
+
+---
+
+## 🔒 Privacy & data
+
+- **Everything runs locally.** Focus Lens is plain HTML/CSS/JS running inside Eagle and makes
+  **no network requests** — no telemetry, no analytics, no accounts, no API keys, no server
+  component of its own. Your library never leaves your machine.
+- **What it reads.** Your active library through Eagle's own Plugin API — items, tags, folders
+  and colour palettes. If you switch on **cross-library search**, it *additionally* reads the
+  `.library` folders you added straight from disk (each item's `metadata.json`, plus thumbnails
+  for the grid).
+- **What it writes.** Browsing a lens changes nothing at all. Only these actions write to your
+  library, and only when you click them:
+  - **Tag all** — adds the tag you type to every item in the active-library result set;
+  - **Add to folder** — adds those items to the folder you pick;
+  - **Tag group / Smart folder** — creates an artifact inside Eagle, prefixed `Focus Lens ·`
+    and listed under **Created in Eagle**, removable in one click;
+  - **Export…** — writes a tab-separated list to a file you choose.
+- **What it stores.** Only small preferences, kept in Eagle's local storage for this plugin
+  (`focus-lens:v1:*` keys): pinned lenses, the created-artifact references, the "reopen last
+  lens" setting, the last lens snapshot, and your other-libraries list. Nothing is uploaded.
+- **AI Search.** *Find Similar* passes your selected item IDs to Eagle's own **AI Search**
+  module and reads back similarity scores. How that module indexes and stores its data is
+  Eagle's behaviour rather than this plugin's — see Eagle's documentation for it.
+
+---
+
 ## ✅ Requirements
 
 - **Eagle 4.x** — Focus Lens is a window plugin and only runs inside Eagle (macOS or Windows).
@@ -56,7 +113,7 @@ You can even search **across multiple Eagle libraries** at once.
 
 ---
 
-## 📦 Install
+## 📦 Installation
 
 **Option A — the packaged plugin (recommended)**
 
@@ -97,10 +154,6 @@ take it from there.
 6. Click any thumbnail to reveal that item in Eagle; **Show more** pages deeper into large lenses;
    **Clear** drops the lens (Eagle's selection stays as it is).
 
-| The lens panel | Filters, bulk actions & libraries |
-| --- | --- |
-| ![The Focus Lens panel after Focus on Selection: the shared tag chips with their item counts, the Any tag / All tags toggle, the text filter, colour and rating filters, the pin and bulk-action rows, and the isolated results grid underneath](assets/panel-top.png) | ![The lower half of the panel: filters, pin and bulk actions, the Pinned lenses list, and the Other libraries section with auto-discovery and manual library entries](assets/panel-bottom.png) |
-
 ### Match logic notes
 
 - **Any tag** (union): item appears if it carries *at least one* of the selected tags.
@@ -112,9 +165,7 @@ take it from there.
   those tags), a hint says so instead of silently repeating your selection.
 - If the selected items are **untagged**, a hint points you to tag them or use the text filter.
 
----
-
-## 🎛 Filters (colour / rating / date / shape / folder)
+### Filters (colour / rating / date / shape / folder)
 
 Below the tag chips is a **Filters** block. Filters are ANDed with whatever the tag/text
 lens produces — and they also work **on their own**, so you can isolate items that have no
@@ -130,9 +181,7 @@ tags at all:
 Press **reset** to clear all filters. Filters are saved with **Pin** and restored with the
 lens, and included in the "reopen last lens" snapshot.
 
----
-
-## ⚙ Bulk actions, duplicates, history & shortcuts
+### Bulk actions, duplicates, history & shortcuts
 
 **Bulk actions** (appear under the lens once there are results) apply to the **active-library**
 items in the current result set (other-library items are browse-only, so they're skipped):
@@ -157,9 +206,7 @@ a lens from what they *do* share: their common **folder**, else common **shape**
 you've built. Shortcuts: **Ctrl/Cmd+F** Focus, **Ctrl/Cmd+Shift+F** Find Similar,
 **Ctrl/Cmd+K** jump to the text filter, **Ctrl/Cmd+D** duplicates, **Esc** clear the text filter.
 
----
-
-## 🔮 Find similar (AI visual similarity)
+### Find similar (AI visual similarity)
 
 When your items aren't tagged (or you just want "more like this"), use the AI lens:
 
@@ -179,9 +226,7 @@ Notes:
 - Uses `eagle.extraModule.aiSearch.searchByItemId(id, { limit })`; scores are 0–1 and the
   seed image itself typically appears near 100%.
 
----
-
-## 🔗 Other libraries (search across multiple libraries)
+### Other libraries (search across multiple libraries)
 
 The plugin normally searches the **active** Eagle library. To search across several:
 
@@ -199,7 +244,7 @@ with a blue **library-name** badge, but they can't be opened/selected in Eagle's
 (Eagle can only operate on its active library). The count line shows the total and how many
 came from other libraries ("incl. N from others").
 
-### Auto-discovery locations
+#### Auto-discovery locations
 
 - `~/Pictures` (scans one level deep for `*.library`)
 - `~` / home (direct children)
@@ -217,7 +262,7 @@ won't find them — use **＋ Add library…** to point at the folder.*
 | Symptom | What's going on |
 | --- | --- |
 | Focus Lens isn't listed in the Plugin panel | Eagle scans the folder that contains `manifest.json` **directly** — not a folder wrapped around it. Check the path, hit refresh, or restart Eagle. |
-| Double-clicking the `.eagleplugin` does nothing | Make sure Eagle is installed and running first. If your system still won't hand the file over to Eagle, use **Option B** under Install and copy the folder in by hand. |
+| Double-clicking the `.eagleplugin` does nothing | Make sure Eagle is installed and running first. If your system still won't hand the file over to Eagle, use **Option B** under Installation and copy the folder in by hand. |
 | A notice says the plugin only runs inside Eagle | Expected: window plugins need Eagle's runtime. Opening `index.html` in a browser always shows this. |
 | **≈ Find Similar** says AI Search isn't available | Install/enable Eagle's **AI Search** plugin and let it finish indexing; if it's still syncing, retry in a moment. AI Search indexes the **active library** only. |
 | The **Smart folder** option is missing | It needs Eagle 4.0 **build 22+**. The plugin hides controls your build doesn't support instead of showing them broken — use **Tag group** instead. |
@@ -228,27 +273,6 @@ won't find them — use **＋ Add library…** to point at the folder.*
 | Pins or created artifacts seem to reset | They're stored **per library**. Switching libraries re-keys them and rebuilds the index automatically. |
 | Cross-library search misses items | That mode reads the `.library` layout on disk directly, so it's best-effort: if the layout differs it indexes fewer items rather than failing. |
 | The lens counts more items than it renders | A page's hydration query timed out. Since 1.6.1 a timed-out page is reported instead of failing silently — retry, or focus a smaller set. |
-
----
-
-## 🗂 Files
-
-```
-focus-lens/
-├─ manifest.json                     # plugin manifest (window type)
-├─ logo.png                          # 128×128 plugin icon
-├─ index.html                        # UI shell
-├─ css/style.css                     # dark/light theme via [data-theme]
-├─ js/plugin.js                      # all logic (vanilla JS, no dependencies)
-└─ dist/
-   └─ FocusLens-1.6.1.eagleplugin    # packaged plugin, ready to double-click
-```
-
-Also in the repository: `test/` (the headless harness) and `assets/` (screenshots).
-
-`dist/FocusLens-1.6.1.eagleplugin` is the same file attached to the release. It's a ZIP
-archive whose root holds exactly `manifest.json`, `index.html`, `logo.png`, `css/style.css`
-and `js/plugin.js` — no `test/`, no repository files.
 
 ---
 
@@ -277,7 +301,7 @@ and `js/plugin.js` — no `test/`, no repository files.
 ## 🧪 Tests
 
 The plugin is developed against a **headless harness** that runs the real `js/plugin.js`
-in Node with a DOM shim and a fake Eagle API — 42 behaviour/regression checks covering
+in Node with a DOM shim and a fake Eagle API — 43 behaviour/regression checks covering
 lens semantics, filters, pagination, AI similar, duplicates, persistence, cross-library
 scanning and bulk actions. See [`test/README.md`](test/README.md).
 
