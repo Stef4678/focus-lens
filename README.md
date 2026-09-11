@@ -1,5 +1,7 @@
 # Focus Lens — isolation & focus view for Eagle
 
+![Focus Lens — the advanced smart filter for Eagle: one-click isolation, instant organized results, AI discovery, live deep filtering, persistent sidebar integration and multi-library indexing](assets/hero.png)
+
 **Focus Lens** turns Eagle's powerful (but buried) filtering into a *dynamic lens*:
 select a few related items in Eagle, press one button, and the plugin finds the tags
 they share, then shows you **every item in the library** that belongs to that
@@ -94,6 +96,10 @@ take it from there.
    Or push it into Eagle via **Tag group / Smart folder**.
 6. Click any thumbnail to reveal that item in Eagle; **Show more** pages deeper into large lenses;
    **Clear** drops the lens (Eagle's selection stays as it is).
+
+| The lens panel | Filters, bulk actions & libraries |
+| --- | --- |
+| ![The Focus Lens panel after Focus on Selection: the shared tag chips with their item counts, the Any tag / All tags toggle, the text filter, colour and rating filters, the pin and bulk-action rows, and the isolated results grid underneath](assets/panel-top.png) | ![The lower half of the panel: filters, pin and bulk actions, the Pinned lenses list, and the Other libraries section with auto-discovery and manual library entries](assets/panel-bottom.png) |
 
 ### Match logic notes
 
