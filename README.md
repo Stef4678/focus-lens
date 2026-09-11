@@ -43,8 +43,8 @@ the plugin auto-detects and hides what your build doesn't support).
 1. Copy this folder (the one containing `manifest.json`) into Eagle's plugin folder.
    To find it: Eagle → **Plugin panel** (puzzle icon) → **⋯ / settings** → **Open Plugin Folder**.
    Recommended sub-folder name: `focus-lens`.
-   (Alternatively, unzip the packaged `FocusLens-1.6.0.zip` — its contents are ready to drop in.
-   Note that zip predates the 1.6.1 fixes; the folder contents are newer.)
+   (Alternatively, unzip the packaged `FocusLens-1.6.1.zip` — its contents are ready to drop in.
+   The same archive is attached to the [v1.6.1 release](https://github.com/Stef4678/focus-lens/releases/latest).)
 2. In the Plugin panel, refresh /**+** so Eagle re-scans local plugins.
 3. Click **Focus Lens** in the plugin list — the window opens as a child window of Eagle.
 4. That's it. No build step, no npm, no network access — pure HTML/CSS/JS.
@@ -282,5 +282,5 @@ Bug-fix release; found by the headless harness in `test/` (each fix has a regres
   `Folder: any` and named folders appear in lens names; the empty-state hint distinguishes
   "library could not be loaded" from "no items match".
 
-> The packaged `FocusLens-1.6.0.zip` in this folder still contains the pre-fix 1.6.0 build;
-> re-zip the folder (or use it as a local plugin) to ship 1.6.1.
+> The packaged `FocusLens-1.6.1.zip` matches the current folder contents — both are the fixed
+> 1.6.1 build. The archive is also attached to the v1.6.1 release on GitHub.
